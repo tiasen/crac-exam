@@ -5,3 +5,5 @@ work/
 .playwright-mcp/
 dist/
 .wrangler/
+
+__pycache__

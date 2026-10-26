@@ -6,7 +6,6 @@ import os from "node:os";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "public");
-const DATA_DIR = path.join(ROOT, "data");
 const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || "127.0.0.1";
 const DEFAULT_AI_BASE = "https://api.deepseek.com";
@@ -79,18 +78,8 @@ async function serveStatic(req, res, pathname) {
     pathname = "/index.html";
   }
 
-  let baseDir = PUBLIC_DIR;
-  let relative = pathname;
-  if (pathname.startsWith("/data/")) {
-    baseDir = DATA_DIR;
-    relative = pathname.slice("/data".length);
-  }
-  if (pathname.startsWith("/assets/") || pathname.startsWith("/css/") || pathname.startsWith("/js/")) {
-    baseDir = PUBLIC_DIR;
-    relative = pathname;
-  }
-
-  const target = safeResolve(baseDir, relative);
+  const baseDir = PUBLIC_DIR;
+  const target = safeResolve(baseDir, pathname);
   if (!target) {
     sendText(res, 403, "Forbidden");
     return;
@@ -103,7 +92,7 @@ async function serveStatic(req, res, pathname) {
     const extension = path.extname(target).toLowerCase();
     const type = MIME_TYPES[extension] || "application/octet-stream";
     const isHtml = extension === ".html";
-    const isData = target.startsWith(DATA_DIR);
+    const isData = pathname.startsWith("/data/");
     const cacheControl = isHtml || isData ? "no-store" : extension === ".js" || extension === ".css" ? "no-cache" : "public, max-age=3600";
     res.writeHead(200, {
       ...securityHeaders(),

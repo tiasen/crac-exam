@@ -21,7 +21,7 @@ const getArg = (name, fallback = "") => {
 };
 const hasFlag = (name) => args.includes(name);
 
-const questionsPath = path.resolve(getArg("--questions", "data/questions.json"));
+const questionsPath = path.resolve(getArg("--questions", "public/data/questions.json"));
 const outPath = path.resolve(getArg("--out", questionsPath));
 const apiKey = getArg("--key", process.env.DEEPSEEK_API_KEY || "");
 const model = getArg("--model", "deepseek-flash");

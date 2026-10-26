@@ -13,7 +13,7 @@
 - **AI 速记语**：683 道题均已预生成一句中文速记语
 - **题库附图**：已从 `总题库附图标记.pdf` 提取 53 张附图，A 类题库中的 `LK0944` 已接入题目
 - **移动端 + PC 端**：桌面侧边栏、移动端底部导航、底部操作栏、底部弹层
-- **Cloudflare Pages**：站点可纯静态部署；AI 分析用 Pages Function 转发，无需自建服务器
+- **Cloudflare 部署**：静态资源 + Workers/Pages 小型代理；AI 分析无需自建服务器
 - **本地数据**：API Key、练习记录、错题本只保存在浏览器
 
 ## 快速开始
@@ -39,35 +39,41 @@ HOST=0.0.0.0 PORT=4173 npm start
 
 启动日志会打印局域网地址，例如 `http://192.168.1.10:4173`。请只在可信网络中使用；绑定 `0.0.0.0` 后，局域网内其他人也能访问这个网站。
 
-## 部署到 Cloudflare Pages
+## 部署到 Cloudflare
 
-站点本体是纯静态的，可以直接部署到 Cloudflare Pages。只有 DeepSeek AI 分析需要一个很小的 Pages Function（`/api/chat`）做代理，因为 DeepSeek 官方接口不允许浏览器直接跨域调用。练习、错题本、模拟考试、记录、速记语、题库浏览全部不依赖服务器。
+你贴的日志 `Missing entry-point to Worker script or to assets directory` 来自 **Cloudflare Workers Builds**，不是 Pages：它正在执行 `wrangler deploy`，但项目缺少 Worker 入口和静态资产配置。当前仓库已改为 **Workers + Static Assets** 部署，重新部署即可。
 
-### 方式一：Git 集成（推荐）
+站点本身仍然是静态前端；只有 AI 分析经过同源 Worker 路由 `/api/chat` 转发。Key 仍然只保存在访问者浏览器本地。
 
-1. 把项目推到 GitHub / GitLab。
-2. Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git。
-3. 构建配置：
-   - Build command：`npm run build`（等价于 `npm run build:cf`）
-   - Build output directory：`dist`
-   - Framework preset：None
-4. `functions/` 目录保持在仓库根目录，Pages 会自动部署其中的 `/api/chat` 和 `/api/health`。
-5. 打开站点，在「设置」里填入自己的 DeepSeek API Key；Key 只保存在该浏览器本地。
+### Cloudflare Workers（当前配置，推荐）
 
-### 方式二：Wrangler CLI
+`wrangler.toml` 已配置：
+
+- `main = "worker/index.js"`
+- `[assets] directory = "./public"`，绑定 `ASSETS`
+
+Worker 负责 `/api/chat`、`/api/health`，其余请求交给 `ASSETS` 静态资源。
+
+在 Cloudflare Dashboard：
+
+1. Workers & Pages → Create → Worker → Connect to Git。
+2. Build command：留空也可以；Worker 直接使用 `public/`，不需要构建 `dist`。
+3. Deploy command：`npx wrangler deploy`（默认）
+4. 部署完成后访问 `*.workers.dev` 或自定义域名。
+
+本地 CLI：
 
 ```bash
-npm run build:cf
-npx wrangler pages deploy
+npx wrangler deploy
 ```
 
-项目根目录的 `wrangler.toml` 已经配置了项目名和输出目录；如果你的 Pages 项目名不同，先修改 `name`，或使用：
+或者：
 
 ```bash
-npx wrangler pages deploy dist --project-name 你的项目名
+npm run deploy
 ```
 
-本地模拟 Cloudflare 环境：
+本地模拟 Workers + 静态资源：
 
 ```bash
 npm run preview:cf
@@ -75,16 +81,17 @@ npm run preview:cf
 
 然后打开 <http://localhost:4174>。
 
-> 不要用 Cloudflare Dashboard 的“直接上传”来传 `dist`，因为该方式不会部署 Pages Functions；需要 AI 分析时请用 Git 集成或 Wrangler。
+### Cloudflare Pages（可选，另一类项目）
 
-### API Key 策略
+如果你确实想用 Pages，需要新建一个 **Pages 项目**（不是当前 Worker 项目），构建命令 `npm run build`，输出目录 `dist`；仓库里的 `functions/` 会被 Pages 识别为 `/api/chat`、`/api/health`。当前根目录的 `wrangler.toml` 是 Worker 配置，使用 Pages 时不要把它当作 Worker 项目部署；Pages 构建界面也可以直接完成配置。
+
+### API Key
 
 - Key 只保存在访问者自己的浏览器 `localStorage`，不会写入 Cloudflare、Node 服务或任何数据库。
-- 没有配置 Key 时，AI 分析按钮只会显示配置提示，不会向 DeepSeek 发起请求。
-- Cloudflare Pages Function 只从请求头读取 Key 并转发，不存储 Key，也不需要配置任何服务端 Key。
-- 每个访问者使用自己的 DeepSeek 额度。
-
-完全静态、不部署 Functions 时，练习、错题、模拟考试、记录、题库和速记语都可用；只有 AI 分析不可用（DeepSeek 官方接口不允许浏览器直接跨域调用）。
+- 未配置 Key 时，AI 分析按钮只显示配置提示，不会向 `/api/chat` 或 DeepSeek 发起请求。
+- Worker/Pages Function 只从请求头读取 Key 并转发，不存储 Key。
+- 每个访问者使用自己的 DeepSeek 额度，不需要配置服务端密钥。
+- 完全静态、不部署 Worker/Function 时，练习、错题、模拟考试、记录、题库和速记语都可用；只有 AI 分析不可用。
 
 ## DeepSeek 配置
 
@@ -92,7 +99,7 @@ npm run preview:cf
 
 - Key 只保存在当前浏览器 `localStorage`。
 - 未配置 Key 时 AI 分析不可用，点击 AI 按钮只会提示去配置，不会发起请求。
-- 请求由同源 `/api/chat` 转发（本地 Node 服务或 Cloudflare Pages Function），代理只转发，不存储 Key。
+- 请求由同源 `/api/chat` 转发（本地 Node 服务或 Cloudflare Worker/Pages Function），代理只转发，不存储 Key。
 - AI 解析结果会缓存在本地，避免重复请求；缓存可在设置中清空。
 
 AI 解析入口出现在：练习提交答案后、错题本、题库浏览、考试结果逐题回顾。
@@ -104,10 +111,10 @@ PDF 是结构化文本格式（`[J]` 题号、`[P]` 章节、`[I]` 内部编号�
 ```bash
 python3 -m pip install pypdf
 npm run figures   # 从《总题库附图标记.pdf》提取 53 张附图到 public/assets/figures
-npm run parse     # A类题库.pdf → data/questions.json
+npm run parse     # A类题库.pdf → public/data/questions.json
 ```
 
-`scripts/pdf_to_json.py` 会读取 `data/figures.json`，按题目的原始 `[J]` 编号把附图写入 `image` 字段；重新生成时会按题目 ID 保留已有的 AI 速记语。当前 A 类题库只有 `MC1-0665`（原编号 `LK0944`）需要配图；附图 PDF 中其余图片未被当前 A 类题库引用，已一并提取备用。
+`scripts/pdf_to_json.py` 会读取 `public/data/figures.json`，按题目的原始 `[J]` 编号把附图写入 `image` 字段；重新生成时会按题目 ID 保留已有的 AI 速记语。当前 A 类题库只有 `MC1-0665`（原编号 `LK0944`）需要配图；附图 PDF 中其余图片未被当前 A 类题库引用，已一并提取备用。
 
 生成的结构包含：
 
@@ -132,7 +139,7 @@ npm run parse     # A类题库.pdf → data/questions.json
 
 ### 重新生成 AI 速记语
 
-仓库中的 `data/questions.json` 已经包含全部 683 条速记语。如果重新从 PDF 生成了题库，或想换一种模型重写，可运行：
+仓库中的 `public/data/questions.json` 已经包含全部 683 条速记语。如果重新从 PDF 生成了题库，或想换一种模型重写，可运行：
 
 ```bash
 DEEPSEEK_API_KEY=sk-... node scripts/generate_mnemonics.mjs
@@ -179,11 +186,11 @@ python3 scripts/apply_mnemonics.py 'path/to/mnemonics/*.json'
 crac/
 ├── A类题库.pdf
 ├── 总题库附图标记.pdf
-├── data/
-│   ├── questions.json          # 683 题，含标签、答案、速记语
-│   └── figures.json            # 附图 PDF 的 LK 编号 → 图片路径映射
-├── public/
+├── public/                      # 纯静态根目录，也是 Worker 的 ASSETS 目录
 │   ├── index.html
+│   ├── data/
+│   │   ├── questions.json      # 683 题，含标签、答案、速记语
+│   │   └── figures.json        # 附图 PDF 的 LK 编号 → 图片路径映射
 │   ├── assets/
 │   │   ├── favicon.svg
 │   │   ├── apple-touch-icon.png
@@ -195,12 +202,16 @@ crac/
 │       ├── data.js             # 题库索引、筛选、统计、交卷
 │       ├── components.js       # 题目卡片、Markdown、AI 解析抽屉
 │       └── views/              # 首页/练习/考试/错题/记录/题库/结果/设置
+├── worker/
+│   └── index.js                # Cloudflare Worker：静态资源 + AI 路由
+├── shared/
+│   └── deepseek.js             # Worker/Pages 共用的 DeepSeek 代理逻辑
 ├── functions/
 │   └── api/
-│       ├── chat.js             # Cloudflare Pages Function：DeepSeek 代理
-│       └── health.js           # Cloudflare Pages Function：健康检查
+│       ├── chat.js             # 可选 Pages Function：DeepSeek 代理
+│       └── health.js           # 可选 Pages Function：健康检查
 ├── cloudflare/
-│   └── _headers                # Pages 安全头与缓存策略
+│   └── _headers                # Pages/静态资源安全头与缓存策略
 ├── scripts/
 │   ├── extract_figures.py      # 附图 PDF → 图片 + figures.json
 │   ├── pdf_to_json.py          # PDF → JSON
@@ -208,7 +219,7 @@ crac/
 │   ├── generate_mnemonics.mjs  # DeepSeek 批量生成速记语
 │   └── build-cloudflare.mjs    # 生成 dist 静态部署目录
 ├── server.js                   # 本地零依赖静态服务 + DeepSeek 代理
-├── wrangler.toml               # Cloudflare Pages 项目配置
+├── wrangler.toml               # Cloudflare Workers + Static Assets 配置
 └── package.json
 ```
 
@@ -217,5 +228,5 @@ crac/
 - 原 PDF 第 112 页天线加感题（`MC1-0665`）标注了 `LK0944.jpg`，但主 PDF 未嵌入图片。附图 PDF 中提供了这张图，已提取为 `public/assets/figures/LK0944.jpg` 并接入题目。
 - PDF 文本中的部分英文空格、`classofemission` 一类排版粘连无法可靠还原，不影响答题。
 - 题目与答案以所提供 PDF 为准；如遇争议题，请以官方最新题库为准。
-- DeepSeek 请求通过同源 `/api/chat` 转发（本地 Node 服务或 Cloudflare Pages Function），避免浏览器跨域问题。自定义 Base URL 只允许公网 HTTPS 或本地 HTTP；代理端也做了内网地址限制。
+- DeepSeek 请求通过同源 `/api/chat` 转发（本地 Node 服务或 Cloudflare Worker/Pages Function），避免浏览器跨域问题。自定义 Base URL 只允许公网 HTTPS 或本地 HTTP；代理端也做了内网地址限制。
 - 本地服务默认只绑定 `127.0.0.1`，避免把 AI 代理接口暴露到局域网。

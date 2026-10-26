@@ -2,7 +2,7 @@
 """Convert the A-class amateur radio question bank PDF into structured JSON.
 
 Usage:
-    python3 scripts/pdf_to_json.py A类题库.pdf data/questions.json
+    python3 scripts/pdf_to_json.py A类题库.pdf public/data/questions.json
 
 Requires: pypdf (pip install pypdf)
 """
@@ -177,7 +177,7 @@ def keyword_tags(question: str, options: list[str], category_id: str) -> list[st
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("pdf", nargs="?", default="A类题库.pdf")
-    parser.add_argument("out", nargs="?", default="data/questions.json")
+    parser.add_argument("out", nargs="?", default="public/data/questions.json")
     args = parser.parse_args()
 
     pdf_path = Path(args.pdf)

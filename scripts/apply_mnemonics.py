@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Merge AI-generated mnemonic JSON files into data/questions.json.
+"""Merge AI-generated mnemonic JSON files into public/data/questions.json.
 
 Each input file must be a JSON object: {"MC1-0001": "速记语", ...}
 
 Usage:
     python3 scripts/apply_mnemonics.py work/mnemonics/batch*.json
-    python3 scripts/apply_mnemonics.py --questions data/questions.json --allow-missing
+    python3 scripts/apply_mnemonics.py --questions public/data/questions.json --allow-missing
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="+", help="JSON mapping files or glob patterns")
-    parser.add_argument("--questions", default="data/questions.json")
+    parser.add_argument("--questions", default="public/public/data/questions.json")
     parser.add_argument("--allow-missing", action="store_true")
     args = parser.parse_args()
 

@@ -20,7 +20,7 @@ from pypdf.generic import ContentStream
 ROOT = Path(__file__).resolve().parent.parent
 PDF_PATH = ROOT / "总题库附图标记.pdf"
 OUT_DIR = ROOT / "public" / "assets" / "figures"
-MAP_PATH = ROOT / "data" / "figures.json"
+MAP_PATH = ROOT / "public" / "data" / "figures.json"
 LABEL_RE = re.compile(r"LK\d+")
 
 

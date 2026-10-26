@@ -8,11 +8,12 @@
     "start": "node server.js",
     "dev": "node server.js",
     "figures": "python3 scripts/extract_figures.py",
-    "parse": "python3 scripts/pdf_to_json.py A类题库.pdf data/questions.json",
+    "parse": "python3 scripts/pdf_to_json.py A类题库.pdf public/data/questions.json",
     "mnemonics": "node scripts/generate_mnemonics.mjs",
     "build:cf": "node scripts/build-cloudflare.mjs",
-    "preview:cf": "npm run build:cf && npx wrangler pages dev dist --port 4174",
-    "build": "node scripts/build-cloudflare.mjs"
+    "preview:cf": "npx wrangler dev --port 4174",
+    "build": "node scripts/build-cloudflare.mjs",
+    "deploy": "npx wrangler deploy"
   },
   "engines": {
     "node": ">=20"

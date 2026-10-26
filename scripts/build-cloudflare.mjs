@@ -2,7 +2,7 @@
 /**
  * Build the static Cloudflare Pages output.
  *
- * The frontend and data are copied to dist/. Cloudflare Pages Functions stay
+ * public/ (including the question data) is copied to dist/. Cloudflare Pages Functions stay
  * in functions/ at the project root; both Git integration and Wrangler pick
  * them up from there.
  */
@@ -12,7 +12,6 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(root, "public");
-const dataDir = path.join(root, "data");
 const distDir = path.join(root, "dist");
 const headersFile = path.join(root, "cloudflare", "_headers");
 
@@ -31,10 +30,6 @@ async function main() {
   await mkdir(distDir, { recursive: true });
 
   await cp(publicDir, distDir, {
-    recursive: true,
-    filter: (source) => !source.endsWith(".DS_Store"),
-  });
-  await cp(dataDir, path.join(distDir, "data"), {
     recursive: true,
     filter: (source) => !source.endsWith(".DS_Store"),
   });
