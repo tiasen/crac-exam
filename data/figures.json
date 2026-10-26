@@ -1,0 +1,342 @@
+{
+  "source": "总题库附图标记.pdf",
+  "generatedAt": "2026-10-26",
+  "count": 53,
+  "figures": {
+    "LK0497": "assets/figures/LK0497.jpg",
+    "LK0498": "assets/figures/LK0498.jpg",
+    "LK0499": "assets/figures/LK0499.jpg",
+    "LK0500": "assets/figures/LK0500.jpg",
+    "LK0501": "assets/figures/LK0501.jpg",
+    "LK0502": "assets/figures/LK0502.jpg",
+    "LK0503": "assets/figures/LK0503.jpg",
+    "LK0504": "assets/figures/LK0504.jpg",
+    "LK0505": "assets/figures/LK0505.jpg",
+    "LK0506": "assets/figures/LK0506.jpg",
+    "LK0507": "assets/figures/LK0507.jpg",
+    "LK0508": "assets/figures/LK0508.jpg",
+    "LK0509": "assets/figures/LK0509.jpg",
+    "LK0510": "assets/figures/LK0510.jpg",
+    "LK0511": "assets/figures/LK0511.jpg",
+    "LK0594": "assets/figures/LK0594.jpg",
+    "LK0595": "assets/figures/LK0595.jpg",
+    "LK0596": "assets/figures/LK0596.jpg",
+    "LK0597": "assets/figures/LK0597.jpg",
+    "LK0598": "assets/figures/LK0598.jpg",
+    "LK0599": "assets/figures/LK0599.jpg",
+    "LK0600": "assets/figures/LK0600.jpg",
+    "LK0601": "assets/figures/LK0601.jpg",
+    "LK0602": "assets/figures/LK0602.jpg",
+    "LK0603": "assets/figures/LK0603.jpg",
+    "LK0604": "assets/figures/LK0604.jpg",
+    "LK0605": "assets/figures/LK0605.jpg",
+    "LK0606": "assets/figures/LK0606.jpg",
+    "LK0607": "assets/figures/LK0607.jpg",
+    "LK0608": "assets/figures/LK0608.jpg",
+    "LK0609": "assets/figures/LK0609.jpg",
+    "LK0610": "assets/figures/LK0610.jpg",
+    "LK0611": "assets/figures/LK0611.jpg",
+    "LK0612": "assets/figures/LK0612.jpg",
+    "LK0613": "assets/figures/LK0613.jpg",
+    "LK0614": "assets/figures/LK0614.jpg",
+    "LK0734": "assets/figures/LK0734.jpg",
+    "LK0735": "assets/figures/LK0735.jpg",
+    "LK0736": "assets/figures/LK0736.jpg",
+    "LK0740": "assets/figures/LK0740.jpg",
+    "LK0741": "assets/figures/LK0741.jpg",
+    "LK0742": "assets/figures/LK0742.jpg",
+    "LK0743": "assets/figures/LK0743.jpg",
+    "LK0744": "assets/figures/LK0744.jpg",
+    "LK0745": "assets/figures/LK0745.jpg",
+    "LK0927": "assets/figures/LK0927.jpg",
+    "LK0928": "assets/figures/LK0928.jpg",
+    "LK0938": "assets/figures/LK0938.jpg",
+    "LK0941": "assets/figures/LK0941.jpg",
+    "LK0942": "assets/figures/LK0942.jpg",
+    "LK0943": "assets/figures/LK0943.jpg",
+    "LK0944": "assets/figures/LK0944.jpg",
+    "LK0945": "assets/figures/LK0945.jpg"
+  },
+  "pages": [
+    {
+      "page": 1,
+      "figures": [
+        {
+          "label": "LK0497",
+          "image": "assets/figures/LK0497.jpg",
+          "source": "IM8"
+        },
+        {
+          "label": "LK0498",
+          "image": "assets/figures/LK0498.jpg",
+          "source": "IM10"
+        },
+        {
+          "label": "LK0499",
+          "image": "assets/figures/LK0499.jpg",
+          "source": "IM11"
+        },
+        {
+          "label": "LK0500",
+          "image": "assets/figures/LK0500.jpg",
+          "source": "IM12"
+        },
+        {
+          "label": "LK0501",
+          "image": "assets/figures/LK0501.jpg",
+          "source": "IM13"
+        },
+        {
+          "label": "LK0502",
+          "image": "assets/figures/LK0502.jpg",
+          "source": "IM19"
+        },
+        {
+          "label": "LK0503",
+          "image": "assets/figures/LK0503.jpg",
+          "source": "IM20"
+        },
+        {
+          "label": "LK0504",
+          "image": "assets/figures/LK0504.jpg",
+          "source": "IM21"
+        },
+        {
+          "label": "LK0505",
+          "image": "assets/figures/LK0505.jpg",
+          "source": "IM22"
+        },
+        {
+          "label": "LK0506",
+          "image": "assets/figures/LK0506.jpg",
+          "source": "IM23"
+        },
+        {
+          "label": "LK0507",
+          "image": "assets/figures/LK0507.jpg",
+          "source": "IM29"
+        },
+        {
+          "label": "LK0508",
+          "image": "assets/figures/LK0508.jpg",
+          "source": "IM30"
+        },
+        {
+          "label": "LK0509",
+          "image": "assets/figures/LK0509.jpg",
+          "source": "IM31"
+        },
+        {
+          "label": "LK0510",
+          "image": "assets/figures/LK0510.jpg",
+          "source": "IM32"
+        },
+        {
+          "label": "LK0511",
+          "image": "assets/figures/LK0511.jpg",
+          "source": "IM33"
+        },
+        {
+          "label": "LK0594",
+          "image": "assets/figures/LK0594.jpg",
+          "source": "IM34"
+        },
+        {
+          "label": "LK0595",
+          "image": "assets/figures/LK0595.jpg",
+          "source": "IM35"
+        },
+        {
+          "label": "LK0596",
+          "image": "assets/figures/LK0596.jpg",
+          "source": "IM36"
+        },
+        {
+          "label": "LK0597",
+          "image": "assets/figures/LK0597.jpg",
+          "source": "IM37"
+        },
+        {
+          "label": "LK0598",
+          "image": "assets/figures/LK0598.jpg",
+          "source": "IM38"
+        },
+        {
+          "label": "LK0599",
+          "image": "assets/figures/LK0599.jpg",
+          "source": "IM39"
+        },
+        {
+          "label": "LK0600",
+          "image": "assets/figures/LK0600.jpg",
+          "source": "IM40"
+        },
+        {
+          "label": "LK0601",
+          "image": "assets/figures/LK0601.jpg",
+          "source": "IM41"
+        },
+        {
+          "label": "LK0602",
+          "image": "assets/figures/LK0602.jpg",
+          "source": "IM42"
+        },
+        {
+          "label": "LK0603",
+          "image": "assets/figures/LK0603.jpg",
+          "source": "IM43"
+        },
+        {
+          "label": "LK0604",
+          "image": "assets/figures/LK0604.jpg",
+          "source": "IM44"
+        },
+        {
+          "label": "LK0605",
+          "image": "assets/figures/LK0605.jpg",
+          "source": "IM45"
+        },
+        {
+          "label": "LK0606",
+          "image": "assets/figures/LK0606.jpg",
+          "source": "IM46"
+        },
+        {
+          "label": "LK0607",
+          "image": "assets/figures/LK0607.jpg",
+          "source": "IM47"
+        },
+        {
+          "label": "LK0608",
+          "image": "assets/figures/LK0608.jpg",
+          "source": "IM48"
+        },
+        {
+          "label": "LK0609",
+          "image": "assets/figures/LK0609.jpg",
+          "source": "IM49"
+        },
+        {
+          "label": "LK0610",
+          "image": "assets/figures/LK0610.jpg",
+          "source": "IM50"
+        },
+        {
+          "label": "LK0611",
+          "image": "assets/figures/LK0611.jpg",
+          "source": "IM51"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "figures": [
+        {
+          "label": "LK0612",
+          "image": "assets/figures/LK0612.jpg",
+          "source": "IM54"
+        },
+        {
+          "label": "LK0613",
+          "image": "assets/figures/LK0613.jpg",
+          "source": "IM55"
+        },
+        {
+          "label": "LK0614",
+          "image": "assets/figures/LK0614.jpg",
+          "source": "IM56"
+        },
+        {
+          "label": "LK0734",
+          "image": "assets/figures/LK0734.jpg",
+          "source": "IM57"
+        },
+        {
+          "label": "LK0735",
+          "image": "assets/figures/LK0735.jpg",
+          "source": "IM58"
+        },
+        {
+          "label": "LK0736",
+          "image": "assets/figures/LK0736.jpg",
+          "source": "IM59"
+        },
+        {
+          "label": "LK0740",
+          "image": "assets/figures/LK0740.jpg",
+          "source": "IM60"
+        },
+        {
+          "label": "LK0741",
+          "image": "assets/figures/LK0741.jpg",
+          "source": "IM61"
+        },
+        {
+          "label": "LK0742",
+          "image": "assets/figures/LK0742.jpg",
+          "source": "IM62"
+        },
+        {
+          "label": "LK0743",
+          "image": "assets/figures/LK0743.jpg",
+          "source": "IM63"
+        },
+        {
+          "label": "LK0744",
+          "image": "assets/figures/LK0744.jpg",
+          "source": "IM64"
+        },
+        {
+          "label": "LK0745",
+          "image": "assets/figures/LK0745.jpg",
+          "source": "IM65"
+        },
+        {
+          "label": "LK0927",
+          "image": "assets/figures/LK0927.jpg",
+          "source": "IM66"
+        },
+        {
+          "label": "LK0928",
+          "image": "assets/figures/LK0928.jpg",
+          "source": "IM67"
+        },
+        {
+          "label": "LK0938",
+          "image": "assets/figures/LK0938.jpg",
+          "source": "IM68"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "figures": [
+        {
+          "label": "LK0941",
+          "image": "assets/figures/LK0941.jpg",
+          "source": "IM71"
+        },
+        {
+          "label": "LK0942",
+          "image": "assets/figures/LK0942.jpg",
+          "source": "IM72"
+        },
+        {
+          "label": "LK0943",
+          "image": "assets/figures/LK0943.jpg",
+          "source": "IM73"
+        },
+        {
+          "label": "LK0944",
+          "image": "assets/figures/LK0944.jpg",
+          "source": "IM74"
+        },
+        {
+          "label": "LK0945",
+          "image": "assets/figures/LK0945.jpg",
+          "source": "IM75"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+name = "crac-a-quiz"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-26"

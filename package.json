@@ -1,0 +1,20 @@
+{
+  "name": "crac-a-quiz",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A 类业余无线电台操作技术能力验证本地题库与模拟考试网站",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "figures": "python3 scripts/extract_figures.py",
+    "parse": "python3 scripts/pdf_to_json.py A类题库.pdf data/questions.json",
+    "mnemonics": "node scripts/generate_mnemonics.mjs",
+    "build:cf": "node scripts/build-cloudflare.mjs",
+    "preview:cf": "npm run build:cf && npx wrangler pages dev dist --port 4174",
+    "build": "node scripts/build-cloudflare.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

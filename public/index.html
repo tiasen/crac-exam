@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <meta
+      name="description"
+      content="A 类业余无线电台操作技术能力验证本地题库：分类练习、模拟考试、错题本、练习记录与 DeepSeek AI 解析。"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>A 类题库 · 无线电操作能力验证</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <script src="/js/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#/dashboard" aria-label="A 类题库首页">
+          <span class="brand-mark" data-icon="radio"></span>
+          <span class="brand-text">
+            <strong>电波题库</strong>
+            <small>A 类操作能力验证</small>
+          </span>
+        </a>
+
+        <nav class="side-nav" aria-label="主导航">
+          <span class="nav-section-label">学习</span>
+          <a class="nav-link" href="#/dashboard" data-route="dashboard">
+            <span class="nav-icon" data-icon="home"></span>
+            <span>首页</span>
+          </a>
+          <a class="nav-link" href="#/practice" data-route="practice">
+            <span class="nav-icon" data-icon="practice"></span>
+            <span>分类练习</span>
+            <span class="nav-dot" data-session-dot="practice"></span>
+          </a>
+          <a class="nav-link" href="#/exam" data-route="exam">
+            <span class="nav-icon" data-icon="exam"></span>
+            <span>模拟考试</span>
+            <span class="nav-dot" data-session-dot="exam"></span>
+          </a>
+          <a class="nav-link" href="#/wrong" data-route="wrong">
+            <span class="nav-icon" data-icon="wrong"></span>
+            <span>错题本</span>
+            <span class="nav-badge" id="nav-wrong-badge" hidden>0</span>
+          </a>
+
+          <span class="nav-section-label nav-section-gap">我的</span>
+          <a class="nav-link" href="#/records" data-route="records">
+            <span class="nav-icon" data-icon="history"></span>
+            <span>练习记录</span>
+          </a>
+          <a class="nav-link" href="#/bank" data-route="bank">
+            <span class="nav-icon" data-icon="library"></span>
+            <span>题库浏览</span>
+          </a>
+          <a class="nav-link" href="#/settings" data-route="settings">
+            <span class="nav-icon" data-icon="settings"></span>
+            <span>设置</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <a class="sidebar-ai" href="#/settings" id="sidebar-ai-card">
+            <span class="ai-status-dot" id="sidebar-ai-dot"></span>
+            <span class="sidebar-ai-text">
+              <strong id="sidebar-ai-title">AI 未配置</strong>
+              <small>DeepSeek 在线解析</small>
+            </span>
+            <span class="sidebar-ai-arrow" data-icon="chevronRight"></span>
+          </a>
+          <div class="sidebar-note">
+            <span data-icon="library"></span>
+            <span><b id="sidebar-question-count">683</b> 道题 · 本地运行</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div class="topbar-title">
+            <h1 id="page-title">首页</h1>
+            <p id="page-subtitle">按自己的节奏，稳步通过 A 类验证</p>
+          </div>
+          <div class="topbar-actions">
+            <a class="ai-pill" href="#/settings" id="ai-pill">
+              <span class="ai-status-dot" id="ai-pill-dot"></span>
+              <span id="ai-pill-text">AI 未配置</span>
+            </a>
+            <a class="icon-btn topbar-history" href="#/records" aria-label="练习记录">
+              <span data-icon="history"></span>
+            </a>
+            <a class="icon-btn topbar-settings" href="#/settings" aria-label="设置">
+              <span data-icon="settings"></span>
+            </a>
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="切换主题"></button>
+          </div>
+        </header>
+
+        <main class="view" id="view" tabindex="-1">
+          <div class="boot-screen">
+            <div class="boot-mark" data-icon="radio"></div>
+            <h2>正在加载题库</h2>
+            <p>正在整理 683 道 A 类题目…</p>
+            <div class="boot-bar"><span></span></div>
+          </div>
+        </main>
+      </div>
+
+      <nav class="mobile-nav" aria-label="移动端主导航">
+        <a class="mobile-nav-link" href="#/dashboard" data-route="dashboard">
+          <span class="mobile-nav-icon" data-icon="home"></span>
+          <span>首页</span>
+        </a>
+        <a class="mobile-nav-link" href="#/practice" data-route="practice">
+          <span class="mobile-nav-icon" data-icon="practice"></span>
+          <span>练习</span>
+          <span class="mobile-nav-dot" data-session-dot="practice"></span>
+        </a>
+        <a class="mobile-nav-link" href="#/exam" data-route="exam">
+          <span class="mobile-nav-icon" data-icon="exam"></span>
+          <span>考试</span>
+          <span class="mobile-nav-dot" data-session-dot="exam"></span>
+        </a>
+        <a class="mobile-nav-link" href="#/wrong" data-route="wrong">
+          <span class="mobile-nav-icon" data-icon="wrong"></span>
+          <span>错题</span>
+          <span class="mobile-nav-badge" id="mobile-wrong-badge" hidden>0</span>
+        </a>
+        <a class="mobile-nav-link" href="#/bank" data-route="bank">
+          <span class="mobile-nav-icon" data-icon="library"></span>
+          <span>题库</span>
+        </a>
+      </nav>
+    </div>
+
+    <div id="overlay-root"></div>
+    <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+    <noscript>
+      <div class="noscript">此题库需要启用 JavaScript 才能使用。</div>
+    </noscript>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>
