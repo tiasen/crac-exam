@@ -18,7 +18,7 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="+", help="JSON mapping files or glob patterns")
-    parser.add_argument("--questions", default="public/public/data/questions.json")
+    parser.add_argument("--questions", default="public/data/questions.json")
     parser.add_argument("--allow-missing", action="store_true")
     args = parser.parse_args()
 

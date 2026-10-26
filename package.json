@@ -1,9 +1,9 @@
 {
   "name": "crac-a-quiz",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "A 类业余无线电台操作技术能力验证本地题库与模拟考试网站",
+  "description": "A 类业余无线电台操作技术能力验证题库：本地练习、Cloudflare D1 账号进度同步与 DeepSeek 解析",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
@@ -13,6 +13,9 @@
     "build:cf": "node scripts/build-cloudflare.mjs",
     "preview:cf": "npx wrangler dev --port 4174",
     "build": "node scripts/build-cloudflare.mjs",
+    "db:create": "npx wrangler d1 create crac-a-quiz",
+    "db:migrate:local": "npx wrangler d1 migrations apply crac-a-quiz --local",
+    "db:migrate:remote": "npx wrangler d1 migrations apply crac-a-quiz --remote",
     "deploy": "npx wrangler deploy"
   },
   "engines": {

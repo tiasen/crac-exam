@@ -6,3 +6,21 @@ compatibility_date = "2026-10-26"
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
+
+# Cloudflare D1：账号与每用户进度
+#
+# 1. npx wrangler login
+# 2. npx wrangler d1 create crac-a-quiz
+# 3. 把命令输出的 database_id 填到下面（替换占位符）
+# 4. npx wrangler d1 migrations apply crac-a-quiz --remote
+# 5. npx wrangler deploy
+#
+# 本地 wrangler 开发：
+#   npx wrangler d1 migrations apply crac-a-quiz --local
+#   npm run preview:cf
+#
+# binding 用 crac_a_quiz 或 DB 都可以，Worker 代码两者都兼容。
+[[d1_databases]]
+binding = "crac_a_quiz"
+database_name = "crac-a-quiz"
+database_id = "9060cdd1-c97d-48d0-869e-a326a099faeb"

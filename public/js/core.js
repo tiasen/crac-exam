@@ -1,7 +1,7 @@
 /* Core utilities: state, storage, formatting, icons, overlays and DeepSeek API. */
 
 export const STORAGE_KEY = "crac_a_quiz_v1";
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "1.1.0";
 export const STATE_VERSION = 2;
 
 export const DEFAULT_SETTINGS = {
@@ -118,7 +118,7 @@ function pruneState() {
   }
 }
 
-export function saveState() {
+export function saveState({ sync = true } = {}) {
   pruneState();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -136,6 +136,9 @@ export function saveState() {
       console.error("Failed to save state", retryError);
       toast("本地存储空间不足，部分旧记录未能保存", "error");
     }
+  }
+  if (sync) {
+    document.dispatchEvent(new CustomEvent("state:changed"));
   }
 }
 
@@ -402,6 +405,13 @@ const ICON_PATHS = {
     '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/>',
   chart: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  cloud: '<path d="M17.5 19H6a4 4 0 0 1-.6-7.96A6 6 0 0 1 17 9.5a4.75 4.75 0 0 1 .5 9.5Z"/>',
+  cloudOff:
+    '<path d="m2 2 20 20"/><path d="M5.8 5.8A6 6 0 0 0 5.4 11 4 4 0 0 0 6 19h11.5a4.75 4.75 0 0 0 2.2-.54"/><path d="M10.5 5.3A6 6 0 0 1 17 9.5a4.75 4.75 0 0 1 2.2 8.95"/>',
+  logout:
+    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
   external: '<path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>',
   minus: '<path d="M5 12h14"/>',

@@ -3,6 +3,7 @@
 import {
   aiReady,
   closeAllOverlays,
+  escapeHtml,
   icon,
   initTheme,
   loadState,
@@ -10,6 +11,13 @@ import {
   state,
   toggleTheme,
 } from "./core.js";
+import {
+  account,
+  accountInitial,
+  initAccount,
+  syncStatusText,
+  syncStatusTone,
+} from "./account.js";
 import {
   data,
   getRecord,
@@ -28,6 +36,7 @@ import { renderRecords } from "./views/records.js";
 import { renderBank } from "./views/bank.js";
 import { renderResult } from "./views/result.js";
 import { renderSettings } from "./views/settings.js";
+import { renderLogin } from "./views/login.js";
 
 const PAGE_META = {
   dashboard: ["首页", "按自己的节奏，稳步通过 A 类验证"],
@@ -36,7 +45,8 @@ const PAGE_META = {
   wrong: ["错题本", "集中攻克答错的题目，逐个移出"],
   records: ["练习记录", "查看历史成绩、用时与逐题回顾"],
   bank: ["题库浏览", "搜索与筛选 683 道 A 类题目"],
-  settings: ["设置", "DeepSeek、考试默认值与本地数据"],
+  settings: ["设置", "账号同步、DeepSeek、考试默认值与本地数据"],
+  login: ["登录", "登录后按账号保存进度，支持跨设备同步"],
   result: ["练习结果", "逐题回顾与 AI 深度解析"],
 };
 
@@ -63,6 +73,7 @@ function parseRoute() {
     "records",
     "bank",
     "settings",
+    "login",
   ]);
   return { name: known.has(root) ? root : "dashboard", params };
 }
@@ -95,8 +106,45 @@ function updateAiShell() {
   );
 }
 
+function updateAccountShell() {
+  const user = account.user;
+  const initial = accountInitial();
+  const label = user ? user.name || user.email : "登录";
+  const tone = syncStatusTone();
+
+  const pill = document.getElementById("account-pill");
+  if (pill) {
+    pill.href = user ? "#/settings" : "#/login";
+    pill.classList.toggle("is-ready", Boolean(user));
+    pill.dataset.sync = tone;
+    pill.setAttribute("aria-label", user ? `账号：${user.email}` : "登录或注册");
+    pill.title = user ? `${user.email} · ${syncStatusText()}` : "登录后同步进度";
+  }
+  const pillText = document.getElementById("account-pill-text");
+  if (pillText) pillText.textContent = label;
+  const pillAvatar = document.getElementById("account-avatar");
+  if (pillAvatar) pillAvatar.textContent = user ? initial : "?";
+  const pillDot = document.getElementById("account-pill-dot");
+  if (pillDot) pillDot.className = `sync-dot is-${tone}`;
+
+  const card = document.getElementById("sidebar-account-card");
+  if (card) {
+    card.href = user ? "#/settings" : "#/login";
+    card.dataset.sync = tone;
+  }
+  const cardTitle = document.getElementById("sidebar-account-title");
+  if (cardTitle) cardTitle.textContent = user ? user.name || user.email : "登录同步进度";
+  const cardNote = document.getElementById("sidebar-account-note");
+  if (cardNote) cardNote.textContent = syncStatusText();
+  const cardAvatar = document.getElementById("sidebar-account-avatar");
+  if (cardAvatar) cardAvatar.textContent = user ? initial : "?";
+  const cardDot = document.getElementById("sidebar-account-dot");
+  if (cardDot) cardDot.className = `sync-dot is-${tone}`;
+}
+
 function updateShell(route = parseRoute()) {
   updateAiShell();
+  updateAccountShell();
   const wrongCount = getWrongCount();
   const navBadge = document.getElementById("nav-wrong-badge");
   const mobileBadge = document.getElementById("mobile-wrong-badge");
@@ -151,13 +199,12 @@ function renderBootError(error) {
       <div class="fatal-card">
         <div class="fatal-icon">${icon("alert", 30)}</div>
         <h2>题库加载失败</h2>
-        <p>${String(error?.message || error || "未知错误")}</p>
+        <p>${escapeHtml(String(error?.message || error || "未知错误"))}</p>
         <div class="fatal-help">
-          <strong>检查这几步：</strong>
+          <strong>可以这样处理：</strong>
           <ol>
-            <li>确认本地服务正在运行：在项目目录执行 <code>npm start</code>。</li>
-            <li>确认 <code>data/questions.json</code> 存在且格式正确。</li>
-            <li>重新生成题库：<code>python3 scripts/pdf_to_json.py</code>。</li>
+            <li>检查网络连接后点击重新加载。</li>
+            <li>如果问题持续出现，请稍后再试或联系站点管理员。</li>
           </ol>
         </div>
         <button type="button" class="btn btn-primary" data-reload>重新加载</button>
@@ -168,6 +215,7 @@ function renderBootError(error) {
 async function renderRoute() {
   if (!dataReady) return;
   const route = parseRoute();
+  document.body.classList.toggle("auth-mode", route.name === "login");
   if (cleanup) {
     try {
       cleanup();
@@ -190,6 +238,7 @@ async function renderRoute() {
     else if (route.name === "bank") cleanup = renderBank(view, route.params);
     else if (route.name === "result") cleanup = renderResult(view, route.id);
     else if (route.name === "settings") cleanup = renderSettings(view);
+    else if (route.name === "login") cleanup = renderLogin(view, route.params);
     else cleanup = renderDashboard(view);
     updateShell(route);
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -205,6 +254,8 @@ async function renderRoute() {
 function bindGlobalEvents() {
   document.getElementById("theme-toggle")?.addEventListener("click", toggleTheme);
   document.addEventListener("shell:refresh", () => updateShell());
+  document.addEventListener("account:changed", updateAccountShell);
+  document.addEventListener("sync:status", updateAccountShell);
 
   document.addEventListener("click", (event) => {
     const analyze = event.target.closest("[data-analyze]");
@@ -233,12 +284,15 @@ function bindGlobalEvents() {
 async function boot() {
   loadState();
   initTheme();
+  if (parseRoute().name === "login") document.body.classList.add("auth-mode");
   fillShellIcons();
   bindGlobalEvents();
   updateShell();
+  const accountReady = initAccount();
   try {
     await loadQuestionData();
     dataReady = true;
+    await accountReady;
     updateShell();
     if (!window.location.hash) {
       window.history.replaceState(null, "", "#/dashboard");

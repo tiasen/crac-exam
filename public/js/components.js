@@ -404,10 +404,10 @@ function analysisErrorText(error) {
     return "请求过于频繁或额度不足，请稍后再试。";
   }
   if (/404/.test(message)) {
-    return "AI 代理接口未部署。静态部署时请同时部署 Cloudflare Pages Functions，或改用 npm start 本地运行。";
+    return "AI 服务暂不可用，请确认站点已正确部署或稍后重试。";
   }
   if (/Failed to fetch|NetworkError/i.test(message)) {
-    return "无法连接到本地服务或 DeepSeek，请确认本地网站或 Pages Function 正在运行。";
+    return "无法连接到 AI 服务，请检查网络或确认站点服务正常运行。";
   }
   return message;
 }
@@ -498,7 +498,7 @@ export function openAnalysis(questionId, { force = false } = {}) {
         <h3>开启 AI 深度解析</h3>
         <p>配置 DeepSeek API Key 后，可针对每道题在线分析正确答案、错误选项和记忆要点。</p>
         <a class="btn btn-primary" href="#/settings">去配置 API Key ${icon("arrowRight", 16)}</a>
-        <span class="ai-empty-note">Key 只保存在你的浏览器 localStorage，代理只转发、不存储。</span>
+        <span class="ai-empty-note">Key 只保存在你的浏览器，不会被保存到账号或日志。</span>
       </div>`;
     layer.querySelector("[data-analysis-force]")?.remove();
     layer.querySelector("[data-analysis-copy]")?.remove();

@@ -190,6 +190,6 @@ export function handleHealth(runtime = "cloudflare-worker") {
   return json({
     ok: true,
     runtime,
-    version: "1.0.0",
+    version: "1.1.0",
   });
 }

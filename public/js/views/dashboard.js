@@ -9,6 +9,7 @@ import {
   percent,
   state,
 } from "../core.js";
+import { account } from "../account.js";
 import {
   getRecentRecords,
   getStats,
@@ -56,8 +57,42 @@ function resumeCards(activePractice, activeExam) {
   return `<section class="resume-stack">${cards.join("")}</section>`;
 }
 
-function categoryRows(stats) {
-  return stats.categoryProgress
+function cloudBanner() {
+  if (account.user) return "";
+  if (account.status === "disabled") {
+    return `
+      <section class="cloud-banner is-muted">
+        <span class="cloud-banner-icon">${icon("cloudOff", 20)}</span>
+        <div class="cloud-banner-copy">
+          <strong>当前站点暂未开启云端同步</strong>
+          <small>练习、错题和记录仍会完整保存在本机浏览器；站点开启云端同步后即可登录。</small>
+        </div>
+        <a class="btn btn-secondary btn-sm" href="#/login">查看说明 ${icon("arrowRight", 15)}</a>
+      </section>`;
+  }
+  if (!account.available) {
+    return `
+      <section class="cloud-banner is-muted">
+        <span class="cloud-banner-icon">${icon("alert", 20)}</span>
+        <div class="cloud-banner-copy">
+          <strong>暂时无法连接账号服务</strong>
+          <small>练习进度仍会保存在本机，恢复网络后登录即可同步。</small>
+        </div>
+        <a class="btn btn-secondary btn-sm" href="#/login">重试 ${icon("arrowRight", 15)}</a>
+      </section>`;
+  }
+  return `
+    <section class="cloud-banner">
+      <span class="cloud-banner-icon">${icon("cloud", 20)}</span>
+      <div class="cloud-banner-copy">
+        <strong>登录后，进度跟着账号走</strong>
+        <small>练习记录、错题本、解析缓存和进行中的答题会话会安全保存到云端，手机和电脑无缝接力。</small>
+      </div>
+      <a class="btn btn-primary btn-sm" href="#/login">登录 / 注册 ${icon("arrowRight", 15)}</a>
+    </section>`;
+}
+
+function categoryRows(stats) {  return stats.categoryProgress
     .map((category) => {
       const tone = `tone-${category.id}`;
       return `
@@ -164,6 +199,8 @@ export function renderDashboard(root) {
           </div>
         </div>
       </section>
+
+      ${cloudBanner()}
 
       ${resumeCards(activePractice, activeExam)}
 

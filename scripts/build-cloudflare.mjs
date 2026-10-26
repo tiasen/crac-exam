@@ -40,7 +40,9 @@ async function main() {
   console.log(`Cloudflare build complete: ${distDir}`);
   console.log(`  files: ${files}`);
   console.log(`  modified: ${info.mtime.toISOString()}`);
-  console.log("  functions: ./functions/api/chat.js, ./functions/api/health.js");
+  console.log(
+    "  functions: ./functions/api/chat.js, ./functions/api/health.js, ./functions/api/auth/[[path]].js, ./functions/api/progress.js",
+  );
   console.log("  build output: ./dist");
 }
 

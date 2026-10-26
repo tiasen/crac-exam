@@ -3,6 +3,8 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
+import { handleAccountRequest } from "./shared/account.js";
+import { createFileAccountRepo } from "./server/account-repo.js";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "public");
@@ -10,6 +12,9 @@ const PORT = Number(process.env.PORT || 4173);
 const HOST = process.env.HOST || "127.0.0.1";
 const DEFAULT_AI_BASE = "https://api.deepseek.com";
 const MAX_BODY = 2 * 1024 * 1024;
+const ACCOUNT_DB = process.env.ACCOUNT_DB || path.join(ROOT, ".data", "account.json");
+
+const accountRepo = await createFileAccountRepo(ACCOUNT_DB);
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -106,28 +111,92 @@ async function serveStatic(req, res, pathname) {
   }
 }
 
-function readBody(req) {
+function readRawBody(req, limit = MAX_BODY) {
   return new Promise((resolve, reject) => {
     let size = 0;
+    let tooLarge = false;
     const chunks = [];
     req.on("data", (chunk) => {
+      if (tooLarge) return;
       size += chunk.length;
-      if (size > MAX_BODY) {
-        reject(new Error("请求内容过大"));
-        req.destroy();
+      if (size > limit) {
+        tooLarge = true;
+        chunks.length = 0;
+        const error = new Error("请求内容过大");
+        error.status = 413;
+        reject(error);
         return;
       }
       chunks.push(chunk);
     });
     req.on("end", () => {
-      try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}"));
-      } catch {
-        reject(new Error("请求体不是合法 JSON"));
-      }
+      if (!tooLarge) resolve(Buffer.concat(chunks));
     });
     req.on("error", reject);
   });
+}
+
+async function readBody(req) {
+  const raw = await readRawBody(req);
+  try {
+    return JSON.parse(raw.toString("utf8") || "{}");
+  } catch {
+    throw new Error("请求体不是合法 JSON");
+  }
+}
+
+async function sendFetchResponse(res, response) {
+  const body = Buffer.from(await response.arrayBuffer());
+  const headers = { ...securityHeaders() };
+  const setCookies = response.headers.getSetCookie?.() || [];
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === "set-cookie") return;
+    headers[key] = value;
+  });
+  headers["Content-Length"] = String(body.length);
+  if (setCookies.length) headers["Set-Cookie"] = setCookies;
+  res.writeHead(response.status, headers);
+  res.end(body);
+}
+
+async function handleAccount(req, res) {
+  const host = req.headers.host || `localhost:${PORT}`;
+  const protocol = req.socket.encrypted || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (value == null || key === "set-cookie") continue;
+    headers.set(key, Array.isArray(value) ? value.join(", ") : String(value));
+  }
+
+  let body;
+  if (!["GET", "HEAD"].includes(req.method || "GET")) {
+    try {
+      body = await readRawBody(req, 2_200_000);
+    } catch (error) {
+      sendJson(res, error.status || 400, { error: error.message });
+      return;
+    }
+  }
+
+  let request;
+  try {
+    request = new Request(new URL(req.url || "/", `${protocol}://${host}`), {
+      method: req.method,
+      headers,
+      body,
+    });
+  } catch (error) {
+    sendJson(res, 400, { error: error.message || "请求格式不正确" });
+    return;
+  }
+
+  const response = await handleAccountRequest(request, {
+    repo: accountRepo,
+    secureCookies: protocol === "https",
+    clientIp: req.headers["cf-connecting-ip"] || req.socket.remoteAddress || "",
+    accessUser: null,
+  });
+  await sendFetchResponse(res, response);
 }
 
 function isPrivateHost(hostname) {
@@ -204,7 +273,7 @@ async function handleChat(req, res) {
   try {
     payload = await readBody(req);
   } catch (error) {
-    sendJson(res, 400, { error: error.message });
+    sendJson(res, error.status || 400, { error: error.message });
     return;
   }
 
@@ -336,13 +405,18 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/health") {
     sendJson(res, 200, {
       ok: true,
+      runtime: "node",
       node: process.version,
-      version: "1.0.0",
+      version: "1.1.0",
     });
     return;
   }
   if (pathname === "/api/chat") {
     await handleChat(req, res);
+    return;
+  }
+  if (pathname.startsWith("/api/auth/") || pathname === "/api/progress") {
+    await handleAccount(req, res);
     return;
   }
   if (pathname.startsWith("/api/")) {
@@ -381,6 +455,8 @@ server.listen(PORT, HOST, () => {
     addresses.forEach((address) => console.log(`  局域网     http://${address}:${PORT}`));
   }
   console.log("  DeepSeek   请在网页设置中填写本地 API Key");
+  const accountPath = ACCOUNT_DB.startsWith(ROOT) ? path.relative(ROOT, ACCOUNT_DB) : ACCOUNT_DB;
+  console.log(`  账号数据   ${accountPath}`);
   console.log("  ─────────────────────────────");
   console.log("  按 Ctrl+C 停止服务");
   console.log("");

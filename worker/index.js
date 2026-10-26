@@ -1,11 +1,19 @@
 /**
  * Cloudflare Worker entry point.
  *
- * Serves the static app from the ASSETS binding and handles the DeepSeek
- * proxy routes. The browser key is read from `x-deepseek-key` and forwarded
- * only for the current request.
+ * Serves the static app from the ASSETS binding, handles the DeepSeek proxy,
+ * and provides account/progress APIs backed by Cloudflare D1.
+ *
+ * Login modes:
+ *   - Cloudflare Access: when this Worker is protected by an Access
+ *     application, `ctx.access.getIdentity()` identifies the visitor. No
+ *     password is needed and progress is keyed by the Access identity.
+ *   - Built-in accounts: email/password with an HttpOnly session cookie.
+ *     Used when Access is not configured and by the local Node server.
  */
-import { handleChat, handleHealth } from "../shared/deepseek.js";
+import { handleChat } from "../shared/deepseek.js";
+import { handleAccountRequest } from "../shared/account.js";
+import { createD1Repo } from "./d1-repo.js";
 
 const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -25,6 +33,14 @@ function json(payload, status = 200) {
       "Cache-Control": "no-store",
     },
   });
+}
+
+function secureResponse(response) {
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }
 
 async function serveAsset(request, env, pathname) {
@@ -49,8 +65,29 @@ async function serveAsset(request, env, pathname) {
   });
 }
 
+async function readAccessUser(ctx) {
+  if (!ctx?.access) return null;
+  try {
+    const identity = await ctx.access.getIdentity();
+    if (!identity?.email) return null;
+    return {
+      email: identity.email,
+      name: identity.name || "",
+      externalId: identity.user_uuid
+        ? `cf-access:${identity.user_uuid}`
+        : `cf-access-email:${String(identity.email).toLowerCase()}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function databaseBinding(env) {
+  return env.DB || env.crac_a_quiz || null;
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/chat") {
@@ -64,7 +101,30 @@ export default {
       if (request.method !== "GET") {
         return json({ error: "Method not allowed" }, 405);
       }
-      return handleHealth("cloudflare-worker");
+      return json({
+        ok: true,
+        runtime: "cloudflare-worker",
+        version: "1.1.0",
+      });
+    }
+
+    if (url.pathname.startsWith("/api/auth/") || url.pathname === "/api/progress") {
+      const db = databaseBinding(env);
+      if (!db) {
+        return json(
+          {
+            error: "云端账号服务暂未开启，请稍后再试或联系站点管理员。",
+          },
+          503,
+        );
+      }
+      const response = await handleAccountRequest(request, {
+        repo: createD1Repo(db),
+        secureCookies: url.protocol === "https:",
+        clientIp: request.headers.get("CF-Connecting-IP") || "",
+        accessUser: await readAccessUser(ctx),
+      });
+      return secureResponse(response);
     }
 
     if (url.pathname.startsWith("/api/")) {

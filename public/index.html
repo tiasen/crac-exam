@@ -2,11 +2,11 @@
 <html lang="zh-CN" data-theme="light">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#f5f7fb" />
     <meta
       name="description"
-      content="A 类业余无线电台操作技术能力验证本地题库：分类练习、模拟考试、错题本、练习记录与 DeepSeek AI 解析。"
+      content="A 类业余无线电台操作技术能力验证题库：分类练习、模拟考试、错题本、练习记录与 DeepSeek AI 解析，支持账号登录和跨设备进度同步。"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -66,6 +66,14 @@
         </nav>
 
         <div class="sidebar-bottom">
+          <a class="sidebar-account" id="sidebar-account-card" href="#/login">
+            <span class="sidebar-account-avatar" id="sidebar-account-avatar">?</span>
+            <span class="sidebar-account-text">
+              <strong id="sidebar-account-title">登录同步进度</strong>
+              <small id="sidebar-account-note">未登录 · 仅保存本地</small>
+            </span>
+            <span class="sync-dot is-muted" id="sidebar-account-dot"></span>
+          </a>
           <a class="sidebar-ai" href="#/settings" id="sidebar-ai-card">
             <span class="ai-status-dot" id="sidebar-ai-dot"></span>
             <span class="sidebar-ai-text">
@@ -88,6 +96,11 @@
             <p id="page-subtitle">按自己的节奏，稳步通过 A 类验证</p>
           </div>
           <div class="topbar-actions">
+            <a class="account-pill" id="account-pill" href="#/login" aria-label="登录或注册">
+              <span class="account-avatar" id="account-avatar">?</span>
+              <span class="account-pill-text" id="account-pill-text">登录</span>
+              <span class="sync-dot is-muted" id="account-pill-dot"></span>
+            </a>
             <a class="ai-pill" href="#/settings" id="ai-pill">
               <span class="ai-status-dot" id="ai-pill-dot"></span>
               <span id="ai-pill-text">AI 未配置</span>

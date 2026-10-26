@@ -1,5 +1,14 @@
-/* Settings: DeepSeek, exam defaults, appearance, import/export and reset. */
+/* Settings: account sync, DeepSeek, exam defaults, appearance, import/export and reset. */
 
+import {
+  account,
+  accountInitial,
+  logoutAccount,
+  providerLabel,
+  syncNow,
+  syncStatusText,
+  syncStatusTone,
+} from "../account.js";
 import {
   aiReady,
   applyTheme,
@@ -7,6 +16,7 @@ import {
   DEFAULT_SETTINGS,
   downloadFile,
   escapeHtml,
+  formatDateTime,
   icon,
   notifyShell,
   readFileAsText,
@@ -98,6 +108,67 @@ function categoriesSummaryHTML() {
     .join("");
 }
 
+function accountBadgeHTML() {
+  if (account.user) {
+    return `<span class="badge ${account.status === "synced" ? "badge-pass" : "badge-neutral"}">${escapeHtml(syncStatusText())}</span>`;
+  }
+  return `<span class="badge badge-neutral">${account.available ? "未登录" : "云端未启用"}</span>`;
+}
+
+function accountSettingsHTML() {
+  const tone = syncStatusTone();
+
+  if (!account.available) {
+    return `
+      <div class="account-status-row">
+        <span class="account-avatar is-muted">${icon("cloudOff", 18)}</span>
+        <div class="account-identity">
+          <strong>${account.status === "disabled" ? "当前站点暂未开启云端同步" : "无法连接账号服务"}</strong>
+          <small>${account.status === "disabled" ? "练习进度仍会完整保存在本机浏览器，不影响正常刷题。" : escapeHtml(account.error || "练习进度仍会完整保存在本机浏览器。")}</small>
+        </div>
+      </div>
+      <div class="data-actions">
+        <a class="btn btn-secondary" href="#/login">${icon("info", 16)} 查看账号说明</a>
+      </div>`;
+  }
+
+  if (!account.user) {
+    return `
+      <div class="account-status-row">
+        <span class="account-avatar is-muted">?</span>
+        <div class="account-identity">
+          <strong>尚未登录</strong>
+          <small>登录后练习记录、错题本和解析缓存会按账号安全保存，换设备也能接着练。</small>
+        </div>
+      </div>
+      <div class="data-actions">
+        <a class="btn btn-primary" href="#/login?next=%23%2Fsettings">${icon("user", 16)} 登录 / 注册</a>
+      </div>
+      <p class="settings-note">${icon("lock", 15)} 未登录时所有进度只保存在当前浏览器；DeepSeek 密钥在任何情况下都不会上传。</p>`;
+  }
+
+  return `
+    <div class="account-status-row">
+      <span class="account-avatar">${escapeHtml(accountInitial())}</span>
+      <div class="account-identity">
+        <strong>${escapeHtml(account.user.name)}</strong>
+        <small>${escapeHtml(account.user.email)}</small>
+        <span class="account-provider-badge">${icon(account.provider === "access" ? "shield" : "mail", 13)} ${escapeHtml(providerLabel())}</span>
+      </div>
+      <span class="sync-dot is-${tone}"></span>
+    </div>
+    <div class="account-sync-line">
+      ${icon(account.status === "synced" ? "cloud" : "rotate", 15)}
+      <span>${escapeHtml(syncStatusText())}</span>
+      ${account.lastSyncedAt ? `<small>最近同步 ${escapeHtml(formatDateTime(account.lastSyncedAt))}</small>` : ""}
+    </div>
+    <div class="data-actions">
+      <button type="button" class="btn btn-secondary" data-sync-now>${icon("rotate", 16)} 立即同步</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-account-logout>${icon("logout", 15)} ${account.provider === "access" ? "退出站点登录" : "退出登录"}</button>
+    </div>
+    <p class="settings-note">${icon("lock", 15)} 云端只保存练习进度、错题、解析缓存和答题会话；DeepSeek API Key 始终只保存在本机。</p>`;
+}
+
 function settingsHTML() {
   const exam = state.settings.exam;
   return `
@@ -106,7 +177,7 @@ function settingsHTML() {
         <div>
           <span class="section-kicker">Settings</span>
           <h2>设置</h2>
-          <p>配置 DeepSeek、模拟考试默认值和本地数据。所有数据默认只保存在本机浏览器中。</p>
+          <p>配置账号同步、DeepSeek、模拟考试默认值和本地数据。未登录时数据只保存在本机；登录后进度可同步到云端。</p>
         </div>
         <div class="page-head-actions">
           <div class="page-head-badge">${icon("settings", 18)} 本地优先</div>
@@ -116,6 +187,17 @@ function settingsHTML() {
 
       <form id="settings-form" class="settings-form" autocomplete="off">
         <div class="settings-grid">
+          <section class="card settings-card settings-account-card">
+            <header class="section-head">
+              <div>
+                <span class="section-kicker">Account</span>
+                <h3>账号与云端同步</h3>
+              </div>
+              <span id="settings-account-badge">${accountBadgeHTML()}</span>
+            </header>
+            <div id="settings-account-body">${accountSettingsHTML()}</div>
+          </section>
+
           <section class="card settings-card settings-ai-card">
             <header class="section-head">
               <div>
@@ -133,7 +215,7 @@ function settingsHTML() {
                 <input id="api-key" type="password" value="${escapeHtml(state.settings.apiKey)}" placeholder="sk-..." autocomplete="off" spellcheck="false" />
                 <button type="button" class="input-action" data-toggle-key aria-label="显示或隐藏 API Key">${icon("eye", 17)}</button>
               </div>
-              <small>密钥只保存在当前浏览器 localStorage；本地 Node 或 Cloudflare Pages Function 仅转发，不存储、不写入日志。</small>
+              <small>密钥只保存在当前浏览器，仅在发起 AI 请求时使用，不会被保存到账号或写入日志。</small>
             </label>
 
             <div class="form-grid">
@@ -211,7 +293,7 @@ function settingsHTML() {
             <header class="section-head">
               <div>
                 <span class="section-kicker">Data</span>
-                <h3>本地数据</h3>
+                <h3>本地数据与备份</h3>
               </div>
             </header>
             <div class="data-mini-grid">
@@ -226,7 +308,7 @@ function settingsHTML() {
               <button type="button" class="btn btn-danger-ghost btn-sm" data-reset>${icon("trash", 15)} 重置学习进度</button>
             </div>
             <input type="file" id="import-file" accept="application/json,.json" hidden />
-            <p class="settings-note">${icon("info", 15)} 导出的备份不包含 API Key。导入会覆盖当前记录和错题，请先导出备份。</p>
+            <p class="settings-note">${icon("info", 15)} 导出的备份不包含 API Key。导入会覆盖当前记录和错题，请先导出备份。登录状态下导入后会自动同步到云端。</p>
           </section>
 
           <section class="card settings-card settings-about-card">
@@ -303,7 +385,7 @@ function bind(root) {
   root.querySelector("[data-clear-key]").addEventListener("click", async () => {
     const confirmed = await confirmDialog({
       title: "清除 API Key？",
-      message: "清除后本地浏览器将不再保存 DeepSeek 密钥。若服务端配置了环境变量，AI 解析仍可使用。",
+      message: "清除后本地浏览器将不再保存 DeepSeek 密钥，AI 解析将不可用。",
       confirmText: "清除 Key",
       danger: true,
     });
@@ -470,7 +552,56 @@ function paint(root) {
 
 export function renderSettings(root) {
   paint(root);
+
+  const refreshAccount = () => {
+    const body = root.querySelector("#settings-account-body");
+    if (body) body.innerHTML = accountSettingsHTML();
+    const badge = root.querySelector("#settings-account-badge");
+    if (badge) badge.innerHTML = accountBadgeHTML();
+  };
+
+  const onAccount = () => refreshAccount();
+  const onSync = () => refreshAccount();
+  document.addEventListener("account:changed", onAccount);
+  document.addEventListener("sync:status", onSync);
+
+  const onClick = async (event) => {
+    const syncButton = event.target.closest("[data-sync-now]");
+    if (syncButton) {
+      event.preventDefault();
+      syncButton.disabled = true;
+      syncButton.innerHTML = `<span class="button-spinner"></span> 正在同步…`;
+      const ok = await syncNow();
+      toast(ok ? "进度已同步" : "同步失败，进度仍保存在本机", ok ? "success" : "error");
+      refreshAccount();
+      return;
+    }
+
+    const logoutButton = event.target.closest("[data-account-logout]");
+    if (logoutButton) {
+      event.preventDefault();
+      const access = account.provider === "access";
+      const confirmed = await confirmDialog({
+        title: access ? "退出站点登录？" : "退出登录？",
+        message: access
+          ? "退出后需要重新通过站点登录验证。本机会清除当前账号的进度缓存，云端进度不受影响。"
+          : "退出后本机会清除当前账号的进度缓存，云端进度不受影响。下次登录同一账号会自动恢复。",
+        confirmText: access ? "退出站点登录" : "退出登录",
+        danger: true,
+      });
+      if (!confirmed) return;
+      await logoutAccount();
+      toast("已退出登录", "success");
+      paint(root);
+    }
+  };
+
+  root.addEventListener("click", onClick);
+
   return () => {
+    document.removeEventListener("account:changed", onAccount);
+    document.removeEventListener("sync:status", onSync);
+    root.removeEventListener("click", onClick);
     root.innerHTML = "";
   };
 }
